@@ -19,6 +19,10 @@ public class Car implements Identifiable<Long> {
         this.year = year;
     }
 
+    public Car(Long clientId, String brand, String model, String plateNumber, int year) {
+        this(null, clientId, brand, model, plateNumber, year);
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

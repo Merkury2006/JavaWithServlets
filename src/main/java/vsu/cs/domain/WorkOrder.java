@@ -18,6 +18,10 @@ public class WorkOrder implements Identifiable<Long> {
         this.totalPrice = totalPrice;
     }
 
+    public WorkOrder(Long carId, OrderStatus status, LocalDateTime createdAt, double totalPrice) {
+      this(null, carId, status, createdAt, totalPrice);
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -28,7 +32,6 @@ public class WorkOrder implements Identifiable<Long> {
     public void setStatus(OrderStatus status) { this.status = status; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public double getTotalPrice() { return totalPrice; }
     public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }

@@ -17,6 +17,10 @@ public class WorkOrderItem implements Identifiable<Long> {
         this.quantity = quantity;
     }
 
+    public WorkOrderItem(Long workOrderId, String description, double price, int quantity) {
+        this(null, workOrderId, description, price, quantity);
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
