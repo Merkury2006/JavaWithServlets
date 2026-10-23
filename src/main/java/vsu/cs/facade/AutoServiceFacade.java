@@ -1,6 +1,12 @@
 package vsu.cs.facade;
 
 import vsu.cs.domain.*;
+import vsu.cs.dto.DtoMapper;
+import vsu.cs.dto.request.*;
+import vsu.cs.dto.response.CarResponse;
+import vsu.cs.dto.response.ClientResponse;
+import vsu.cs.dto.response.WorkOrderItemResponse;
+import vsu.cs.dto.response.WorkOrderResponse;
 import vsu.cs.service.CarService;
 import vsu.cs.service.ClientService;
 import vsu.cs.service.WorkOrderItemService;
@@ -21,40 +27,62 @@ public final class AutoServiceFacade {
         this.itemService = itemService;
     }
 
-    public Client createClient(String fullName, String phone, String email) {
-        return clientService.createClient(fullName, phone, email);
+    public ClientResponse createClient(CreateClientRequest request) {
+        return DtoMapper.toResponse(clientService.createClient(request.fullName(), request.phone(), request.email()));
     }
-    public Client updateClient(Long id, String fullName, String phone, String email) {
-        return clientService.updateClient(id, fullName, phone, email);
+    public ClientResponse updateClient(UpdateClientRequest request) {
+        return DtoMapper.toResponse(clientService.updateClient(request.id(), request.fullName(), request.phone(), request.email()));
     }
-    public List<Client> getAllClients() { return clientService.getAllClients(); }
-    public Client getClient(Long id) { return clientService.getClient(id); }
+    public List<ClientResponse> getAllClients() {
+        return clientService.getAllClients().stream().map(DtoMapper::toResponse).toList();
+    }
+    public ClientResponse getClient(Long id) {
+        return DtoMapper.toResponse(clientService.getClient(id));
+    }
     public void deleteClient(Long id) { clientService.deleteClient(id); }
 
 
-    public Car createCar(Long clientId, String brand, String model, String plateNumber, int year) {
-        return carService.createCar(clientId, brand, model, plateNumber, year);
+    public CarResponse createCar(CreateCarRequest request) {
+        return DtoMapper.toResponse(carService.createCar(request.clientId(), request.brand(), request.model(), request.plateNumber(), request.year()));
     }
-    public List<Car> getCarsByClient(Long clientId) { return carService.getCarsByClient(clientId); }
-    public List<Car> getAllCars() { return carService.getAllCars(); }
-    public Car getCar(Long id) { return carService.getCar(id); }
+    public List<CarResponse> getCarsByClient(Long clientId) {
+        return carService.getCarsByClient(clientId).stream().map(DtoMapper::toResponse).toList();
+    }
+    public List<CarResponse> getAllCars() {
+        return carService.getAllCars().stream().map(DtoMapper::toResponse).toList();
+    }
+    public CarResponse getCar(Long id) {
+        return DtoMapper.toResponse(carService.getCar(id));
+    }
     public void deleteCar(Long id) { carService.deleteCar(id); }
 
 
-    public WorkOrder createWorkOrder(Long carId) { return orderService.createWorkOrder(carId); }
-    public List<WorkOrder> getOrdersByCar(Long carId) { return orderService.getOrdersByCar(carId); }
-    public List<WorkOrder> getOrdersByStatus(OrderStatus status) { return orderService.getOrdersByStatus(status); }
-    public List<WorkOrder> getAllWorkOrders() { return orderService.getAllWorkOrders(); }
-    public WorkOrder getWorkOrder(Long id) { return orderService.getWorkOrder(id); }
+    public WorkOrderResponse createWorkOrder(CreateWorkOrderRequest request) {
+        return DtoMapper.toResponse(orderService.createWorkOrder(request.carId()));
+    }
+    public List<WorkOrderResponse> getOrdersByCar(Long carId) {
+        return orderService.getOrdersByCar(carId).stream().map(DtoMapper::toResponse).toList();
+    }
+    public List<WorkOrderResponse> getOrdersByStatus(OrderStatus status) {
+        return orderService.getOrdersByStatus(status).stream().map(DtoMapper::toResponse).toList();
+    }
+    public List<WorkOrderResponse> getAllWorkOrders() {
+        return orderService.getAllWorkOrders().stream().map(DtoMapper::toResponse).toList();
+    }
+    public WorkOrderResponse getWorkOrder(Long id) {
+        return DtoMapper.toResponse(orderService.getWorkOrder(id));
+    }
     public void deleteWorkOrder(Long id) { orderService.deleteWorkOrder(id); }
-    public WorkOrder changeStatus(Long workOrderId, OrderStatus newStatus) {
-        return orderService.changeStatus(workOrderId, newStatus);
+    public WorkOrderResponse changeStatus(ChangeStatusRequest request) {
+        return DtoMapper.toResponse(orderService.changeStatus(request.workOrderId(), request.newStatus()));
     }
 
-    public WorkOrderItem addItem(Long workOrderId, String description, double price, int quantity) {
-        return itemService.addItem(workOrderId, description, price, quantity);
+    public WorkOrderItemResponse addItem(AddItemRequest request) {
+        return DtoMapper.toResponse(itemService.addItem(request.workOrderId(), request.description(), request.price(), request.quantity()));
     }
     public void removeItem(Long itemId) { itemService.removeItem(itemId); }
-    public List<WorkOrderItem> getItems(Long workOrderId) { return itemService.getItems(workOrderId); }
+    public List<WorkOrderItemResponse> getItems(Long workOrderId) {
+        return itemService.getItems(workOrderId).stream().map(DtoMapper::toResponse).toList();
+    }
 }
 
