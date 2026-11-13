@@ -1,10 +1,8 @@
 package vsu.cs.service;
 
-import vsu.cs.domain.OrderStatus;
 import vsu.cs.domain.WorkOrder;
 import vsu.cs.domain.WorkOrderItem;
 import vsu.cs.exception.EntityNotFoundException;
-import vsu.cs.exception.InvalidStateException;
 import vsu.cs.repository.WorkOrderItemRepository;
 import vsu.cs.repository.WorkOrderRepository;
 import vsu.cs.utils.Validator;

@@ -1,6 +1,8 @@
 package vsu.cs;
 
-import vsu.cs.facade.AutoServiceFacade;
+import vsu.cs.facade.CarFacade;
+import vsu.cs.facade.ClientFacade;
+import vsu.cs.facade.WorkOrderFacade;
 import vsu.cs.repository.CarRepository;
 import vsu.cs.repository.ClientRepository;
 import vsu.cs.repository.WorkOrderItemRepository;
@@ -14,7 +16,7 @@ import vsu.cs.service.*;
 public final class AppFactory {
     private AppFactory() {}
 
-    public static AutoServiceFacade createInMemoryAutoServiceFacade() {
+    public static AppContainer createInMemory() {
         ClientRepository clientRepository = new InMemoryClientRepository();
         CarRepository carRepository = new InMemoryCarRepository();
         WorkOrderRepository orderRepository = new InMemoryWorkOrderRepository();
@@ -25,6 +27,10 @@ public final class AppFactory {
         WorkOrderService orderService = new WorkOrderService(orderRepository, carRepository, itemRepository);
         WorkOrderItemService itemService = new WorkOrderItemService(itemRepository, orderRepository);
 
-        return new AutoServiceFacade(clientService, carService, orderService, itemService);
+        return new AppContainer(
+                new ClientFacade(clientService),
+                new CarFacade(carService),
+                new WorkOrderFacade(orderService, itemService)
+        );
     }
 }

@@ -1,4 +1,4 @@
-package vsu.cs.dto.response;
+package vsu.cs.dto.console.response;
 
 public record WorkOrderItemResponse(Long id, Long workOrderId, String description, double price, int quantity, double subtotal) {
     @Override

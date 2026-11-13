@@ -1,21 +1,21 @@
 package vsu.cs.ui.controllers;
 
 import vsu.cs.domain.OrderStatus;
-import vsu.cs.dto.request.AddItemRequest;
-import vsu.cs.dto.request.ChangeStatusRequest;
-import vsu.cs.dto.request.CreateWorkOrderRequest;
-import vsu.cs.dto.response.WorkOrderItemResponse;
-import vsu.cs.dto.response.WorkOrderResponse;
-import vsu.cs.facade.AutoServiceFacade;
+import vsu.cs.domain.WorkOrder;
+import vsu.cs.domain.WorkOrderItem;
+import vsu.cs.dto.console.DtoMapper;
+import vsu.cs.dto.console.response.WorkOrderItemResponse;
+import vsu.cs.dto.console.response.WorkOrderResponse;
+import vsu.cs.facade.WorkOrderFacade;
 import vsu.cs.ui.ConsoleIO;
 
 import java.util.List;
 
 public class WorkOrderController {
-    private final AutoServiceFacade facade;
+    private final WorkOrderFacade facade;
     private final ConsoleIO io;
 
-    public WorkOrderController(AutoServiceFacade facade, ConsoleIO io) {
+    public WorkOrderController(WorkOrderFacade facade, ConsoleIO io) {
         this.facade = facade;
         this.io = io;
     }
@@ -54,17 +54,17 @@ public class WorkOrderController {
     }
 
     private void listAll() {
-        this.printOrders(facade.getAllWorkOrders());
+        this.printOrders(facade.getAll().stream().map(DtoMapper::toResponse).toList());
     }
 
     private void listByCar() {
         Long carId = io.readLong("Car id: ");
-        this.printOrders(facade.getOrdersByCar(carId));
+        this.printOrders(facade.getByCar(carId).stream().map(DtoMapper::toResponse).toList());
     }
 
     private void listByStatus() {
         OrderStatus status = io.readStatus();
-        this.printOrders(facade.getOrdersByStatus(status));
+        this.printOrders(facade.getByStatus(status).stream().map(DtoMapper::toResponse).toList());
     }
 
     private void printOrders(List<WorkOrderResponse> orders) {
@@ -77,13 +77,13 @@ public class WorkOrderController {
 
     private void create() {
         Long carId = io.readLong("Car id: ");
-        WorkOrderResponse response = facade.createWorkOrder(new CreateWorkOrderRequest(carId));
-        System.out.println("Created: " + response);
+        WorkOrder created = facade.create(carId);
+        System.out.println("Created: " + DtoMapper.toResponse(created));
     }
 
     private void showItems() {
         Long workOrderId = io.readLong("Work order id: ");
-        List<WorkOrderItemResponse> items = facade.getItems(workOrderId);
+        List<WorkOrderItemResponse> items = facade.getItems(workOrderId).stream().map(DtoMapper::toResponse).toList();
         if (items.isEmpty()) {
             System.out.println("(no items)");
             return;
@@ -98,8 +98,8 @@ public class WorkOrderController {
         String description = io.readLine("Description: ");
         double price = io.readDouble("Price: ");
         int quantity = io.readInt("Quantity: ");
-        WorkOrderItemResponse response = facade.addItem(new AddItemRequest(workOrderId, description, price, quantity));
-        System.out.println("Added: " + response);
+        WorkOrderItem added = facade.addItem(workOrderId, description, price, quantity);
+        System.out.println("Added: " + DtoMapper.toResponse(added));
     }
 
     private void removeItem() {
@@ -111,13 +111,13 @@ public class WorkOrderController {
     private void changeStatus() {
         Long workOrderId = io.readLong("Work order id: ");
         OrderStatus status = io.readStatus();
-        WorkOrderResponse response = facade.changeStatus(new ChangeStatusRequest(workOrderId, status));
-        System.out.println("Updated: " + response);
+        WorkOrder changed = facade.changeStatus(workOrderId, status);
+        System.out.println("Updated: " + DtoMapper.toResponse(changed));
     }
 
     private void delete() {
         Long id = io.readLong("Work order id: ");
-        facade.deleteWorkOrder(id);
+        facade.delete(id);
         System.out.println("Deleted work order " + id + " (with items).");
     }
 }

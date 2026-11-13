@@ -1,17 +1,18 @@
 package vsu.cs.ui.controllers;
 
-import vsu.cs.dto.request.CreateCarRequest;
-import vsu.cs.dto.response.CarResponse;
-import vsu.cs.facade.AutoServiceFacade;
+import vsu.cs.domain.Car;
+import vsu.cs.dto.console.DtoMapper;
+import vsu.cs.dto.console.response.CarResponse;
+import vsu.cs.facade.CarFacade;
 import vsu.cs.ui.ConsoleIO;
 
 import java.util.List;
 
 public class CarController {
-    private final AutoServiceFacade facade;
+    private final CarFacade facade;
     private final ConsoleIO io;
 
-    public CarController(AutoServiceFacade facade, ConsoleIO io) {
+    public CarController(CarFacade facade, ConsoleIO io) {
         this.facade = facade;
         this.io = io;
     }
@@ -40,7 +41,7 @@ public class CarController {
     }
 
     private void listAll() {
-        List<CarResponse> cars = facade.getAllCars();
+        List<CarResponse> cars = facade.getAll().stream().map(DtoMapper::toResponse).toList();
         if (cars.isEmpty()) {
             System.out.println("(no cars)");
             return;
@@ -50,7 +51,7 @@ public class CarController {
 
     private void listByClient() {
         Long clientId = io.readLong("Client id: ");
-        List<CarResponse> cars = facade.getCarsByClient(clientId);
+        List<CarResponse> cars = facade.getByClient(clientId).stream().map(DtoMapper::toResponse).toList();
         if (cars.isEmpty()) {
             System.out.println("(no cars for client " + clientId + ")");
             return;
@@ -64,13 +65,13 @@ public class CarController {
         String model = io.readLine("Model: ");
         String plate = io.readLine("Plate number: ");
         int year = io.readInt("Year: ");
-        CarResponse response = facade.createCar(new CreateCarRequest(clientId, brand, model, plate, year));
-        System.out.println("Created: " + response);
+        Car created = facade.create(clientId, brand, model, plate, year);
+        System.out.println("Created: " + DtoMapper.toResponse(created));
     }
 
     private void delete() {
         Long id = io.readLong("Car id: ");
-        facade.deleteCar(id);
+        facade.delete(id);
         System.out.println("Deleted car " + id + " (with orders, items).");
     }
 }

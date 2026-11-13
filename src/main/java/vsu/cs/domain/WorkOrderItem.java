@@ -21,7 +21,10 @@ public class WorkOrderItem implements Identifiable<Long> {
         this(null, workOrderId, description, price, quantity);
     }
 
+    @Override
     public Long getId() { return id; }
+
+    @Override
     public void setId(Long id) { this.id = id; }
 
     public Long getWorkOrderId() { return workOrderId; }

@@ -19,7 +19,10 @@ public class Client implements Identifiable<Long> {
         this(null, fullName, phone, email);
     }
 
+    @Override
     public Long getId() { return id; }
+
+    @Override
     public void setId(Long id) { this.id = id; }
 
     public String getFullName() { return fullName; }

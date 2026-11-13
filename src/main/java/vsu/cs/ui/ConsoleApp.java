@@ -1,6 +1,8 @@
 package vsu.cs.ui;
 
-import vsu.cs.facade.AutoServiceFacade;
+import vsu.cs.facade.CarFacade;
+import vsu.cs.facade.ClientFacade;
+import vsu.cs.facade.WorkOrderFacade;
 import vsu.cs.ui.controllers.CarController;
 import vsu.cs.ui.controllers.ClientController;
 import vsu.cs.ui.controllers.WorkOrderController;
@@ -11,11 +13,11 @@ public class ConsoleApp {
     private final CarController carController;
     private final WorkOrderController orderController;
 
-    public ConsoleApp(AutoServiceFacade facade) {
+    public ConsoleApp(ClientFacade clientFacade, CarFacade carFacade, WorkOrderFacade workOrderFacade) {
         this.io = new ConsoleIO();
-        this.clientController = new ClientController(facade, io);
-        this.carController = new CarController(facade, io);
-        this.orderController = new WorkOrderController(facade, io);
+        this.clientController = new ClientController(clientFacade, io);
+        this.carController = new CarController(carFacade, io);
+        this.orderController = new WorkOrderController(workOrderFacade, io);
     }
 
     public void start() {

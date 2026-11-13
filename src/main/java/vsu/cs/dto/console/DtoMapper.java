@@ -1,7 +1,14 @@
-package vsu.cs.dto;
+package vsu.cs.dto.console;
 
-import vsu.cs.domain.*;
-import vsu.cs.dto.response.*;
+
+import vsu.cs.domain.Car;
+import vsu.cs.domain.Client;
+import vsu.cs.domain.WorkOrder;
+import vsu.cs.domain.WorkOrderItem;
+import vsu.cs.dto.console.response.CarResponse;
+import vsu.cs.dto.console.response.ClientResponse;
+import vsu.cs.dto.console.response.WorkOrderItemResponse;
+import vsu.cs.dto.console.response.WorkOrderResponse;
 
 public final class DtoMapper {
 

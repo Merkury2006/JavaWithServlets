@@ -5,9 +5,16 @@ import org.junit.jupiter.api.Test;
 import vsu.cs.domain.Client;
 import vsu.cs.exception.EntityNotFoundException;
 import vsu.cs.exception.ValidationException;
-import vsu.cs.repository.impl.*;
+import vsu.cs.repository.impl.InMemoryCarRepository;
+import vsu.cs.repository.impl.InMemoryClientRepository;
+import vsu.cs.repository.impl.InMemoryWorkOrderItemRepository;
+import vsu.cs.repository.impl.InMemoryWorkOrderRepository;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 class ClientServiceTest {
 

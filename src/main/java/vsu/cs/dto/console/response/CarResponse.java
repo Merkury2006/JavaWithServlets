@@ -1,4 +1,4 @@
-package vsu.cs.dto.response;
+package vsu.cs.dto.console.response;
 
 public record CarResponse(Long id, Long clientId, String brand, String model, String plateNumber, int year) {
     @Override

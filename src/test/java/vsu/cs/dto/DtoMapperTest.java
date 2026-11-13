@@ -3,8 +3,9 @@ package vsu.cs.dto;
 import org.junit.jupiter.api.Test;
 import vsu.cs.domain.Car;
 import vsu.cs.domain.Client;
-import vsu.cs.dto.response.CarResponse;
-import vsu.cs.dto.response.ClientResponse;
+import vsu.cs.dto.console.DtoMapper;
+import vsu.cs.dto.console.response.CarResponse;
+import vsu.cs.dto.console.response.ClientResponse;
 
 import static org.junit.jupiter.api.Assertions.*;
 

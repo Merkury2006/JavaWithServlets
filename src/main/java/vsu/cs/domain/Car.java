@@ -23,7 +23,10 @@ public class Car implements Identifiable<Long> {
         this(null, clientId, brand, model, plateNumber, year);
     }
 
+    @Override
     public Long getId() { return id; }
+
+    @Override
     public void setId(Long id) { this.id = id; }
 
     public Long getClientId() { return clientId; }

@@ -1,18 +1,18 @@
 package vsu.cs.ui.controllers;
 
-import vsu.cs.dto.request.CreateClientRequest;
-import vsu.cs.dto.request.UpdateClientRequest;
-import vsu.cs.dto.response.ClientResponse;
-import vsu.cs.facade.AutoServiceFacade;
+import vsu.cs.domain.Client;
+import vsu.cs.dto.console.DtoMapper;
+import vsu.cs.dto.console.response.ClientResponse;
+import vsu.cs.facade.ClientFacade;
 import vsu.cs.ui.ConsoleIO;
 
 import java.util.List;
 
 public class ClientController {
-    private final AutoServiceFacade facade;
+    private final ClientFacade facade;
     private final ConsoleIO io;
 
-    public ClientController(AutoServiceFacade facade, ConsoleIO io) {
+    public ClientController(ClientFacade facade, ConsoleIO io) {
         this.facade = facade;
         this.io = io;
     }
@@ -41,7 +41,7 @@ public class ClientController {
     }
 
     private void list() {
-        List<ClientResponse> clients = facade.getAllClients();
+        List<ClientResponse> clients = facade.getAll().stream().map(DtoMapper::toResponse).toList();
         if (clients.isEmpty()) {
             System.out.println("(no clients)");
             return;
@@ -53,8 +53,8 @@ public class ClientController {
         String fullName = io.readLine("Full name: ");
         String phone = io.readLine("Phone: ");
         String email = io.readLine("Email: ");
-        ClientResponse response = facade.createClient(new CreateClientRequest(fullName, phone, email));
-        System.out.println("Created: " + response);
+        Client created = facade.create(fullName, phone, email);
+        System.out.println("Created: " + DtoMapper.toResponse(created));
     }
 
     private void update() {
@@ -62,13 +62,13 @@ public class ClientController {
         String fullName = io.readLine("Full name: ");
         String phone = io.readLine("Phone: ");
         String email = io.readLine("Email: ");
-        ClientResponse response = facade.updateClient(new UpdateClientRequest(id, fullName, phone, email));
-        System.out.println("Updated: " + response);
+        Client updated = facade.update(id, fullName, phone, email);
+        System.out.println("Updated: " + DtoMapper.toResponse(updated));
     }
 
     private void delete() {
         Long id = io.readLong("Client id: ");
-        facade.deleteClient(id);
+        facade.delete(id);
         System.out.println("Deleted client " + id + " (with cars, orders, items).");
     }
 }

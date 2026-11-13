@@ -22,7 +22,10 @@ public class WorkOrder implements Identifiable<Long> {
       this(null, carId, status, createdAt, totalPrice);
     }
 
+    @Override
     public Long getId() { return id; }
+
+    @Override
     public void setId(Long id) { this.id = id; }
 
     public Long getCarId() { return carId; }

@@ -1,4 +1,4 @@
-package vsu.cs.dto.response;
+package vsu.cs.dto.console.response;
 
 import vsu.cs.domain.OrderStatus;
 import java.time.LocalDateTime;

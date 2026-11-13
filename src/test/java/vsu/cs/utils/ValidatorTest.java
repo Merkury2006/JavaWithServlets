@@ -5,7 +5,8 @@ import vsu.cs.domain.OrderStatus;
 import vsu.cs.exception.InvalidStateException;
 import vsu.cs.exception.ValidationException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ValidatorTest {
 

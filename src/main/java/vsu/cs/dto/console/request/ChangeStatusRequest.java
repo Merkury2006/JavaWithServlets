@@ -1,4 +1,4 @@
-package vsu.cs.dto.request;
+package vsu.cs.dto.console.request;
 
 import vsu.cs.domain.OrderStatus;
 

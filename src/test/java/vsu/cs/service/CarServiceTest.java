@@ -6,7 +6,10 @@ import vsu.cs.domain.Car;
 import vsu.cs.domain.Client;
 import vsu.cs.exception.EntityNotFoundException;
 import vsu.cs.exception.ValidationException;
-import vsu.cs.repository.impl.*;
+import vsu.cs.repository.impl.InMemoryCarRepository;
+import vsu.cs.repository.impl.InMemoryClientRepository;
+import vsu.cs.repository.impl.InMemoryWorkOrderItemRepository;
+import vsu.cs.repository.impl.InMemoryWorkOrderRepository;
 
 import java.util.List;
 
