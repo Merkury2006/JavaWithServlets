@@ -5,6 +5,7 @@ import vsu.cs.dto.console.DtoMapper;
 import vsu.cs.dto.console.response.ClientResponse;
 import vsu.cs.facade.ClientFacade;
 import vsu.cs.ui.ConsoleIO;
+import vsu.cs.ui.Menu;
 
 import java.util.List;
 
@@ -18,26 +19,12 @@ public class ClientController {
     }
 
     public void run() {
-        while (true) {
-            System.out.println("""
-                    
-                    --- Clients ---
-                    1. List all
-                    2. Create
-                    3. Update
-                    4. Delete (cascade)
-                    0. Back
-                    """);
-            String choice = io.readLine("> ").trim();
-            switch (choice) {
-                case "1" -> io.safe(this::list);
-                case "2" -> io.safe(this::create);
-                case "3" -> io.safe(this::update);
-                case "4" -> io.safe(this::delete);
-                case "0" -> { return; }
-                default -> System.out.println("Unknown command.");
-            }
-        }
+        new Menu(io, "Clients")
+                .add("list","List all", this::list)
+                .add("create","Create", this::create)
+                .add("update","Update", this::update)
+                .add("delete","Delete (cascade)", this::delete)
+                .run();
     }
 
     private void list() {

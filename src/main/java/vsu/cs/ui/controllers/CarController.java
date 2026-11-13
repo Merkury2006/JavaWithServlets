@@ -5,6 +5,7 @@ import vsu.cs.dto.console.DtoMapper;
 import vsu.cs.dto.console.response.CarResponse;
 import vsu.cs.facade.CarFacade;
 import vsu.cs.ui.ConsoleIO;
+import vsu.cs.ui.Menu;
 
 import java.util.List;
 
@@ -18,26 +19,12 @@ public class CarController {
     }
 
     public void run() {
-        while (true) {
-            System.out.println("""
-                    
-                    --- Cars ---
-                    1. List all
-                    2. List by client
-                    3. Create
-                    4. Delete (cascade)
-                    0. Back
-                    """);
-            String choice = io.readLine("> ").trim();
-            switch (choice) {
-                case "1" -> io.safe(this::listAll);
-                case "2" -> io.safe(this::listByClient);
-                case "3" -> io.safe(this::create);
-                case "4" -> io.safe(this::delete);
-                case "0" -> { return; }
-                default -> System.out.println("Unknown command.");
-            }
-        }
+        new Menu(io, "Cars")
+                .add("all","List all", this::listAll)
+                .add("by-client","List by client", this::listByClient)
+                .add("create","Create", this::create)
+                .add("delete","Delete (cascade)", this::delete)
+                .run();
     }
 
     private void listAll() {

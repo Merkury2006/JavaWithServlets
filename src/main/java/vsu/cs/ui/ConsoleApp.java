@@ -21,25 +21,12 @@ public class ConsoleApp {
     }
 
     public void start() {
-        while (true) {
-            System.out.println("""
-                    === Auto Service ===
-                    1. Clients
-                    2. Cars
-                    3. Work orders
-                    0. Exit
-                    """);
-            String choice = io.readLine("> ").trim();
-            switch (choice) {
-                case "1" -> clientController.run();
-                case "2" -> carController.run();
-                case "3" -> orderController.run();
-                case "0" -> {
-                    System.out.println("Bye.");
-                    return;
-                }
-                default -> System.out.println("Unknown command.");
-            }
-        }
+        new Menu(io, "Auto Service")
+                .add("clients","Clients", clientController::run)
+                .add("cars","Cars", carController::run)
+                .add("orders","Work orders", orderController::run)
+                .exit("exit","Exit")
+                .run();
+        System.out.println("Bye.");
     }
 }

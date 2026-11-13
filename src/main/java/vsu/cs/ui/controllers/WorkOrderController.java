@@ -8,6 +8,7 @@ import vsu.cs.dto.console.response.WorkOrderItemResponse;
 import vsu.cs.dto.console.response.WorkOrderResponse;
 import vsu.cs.facade.WorkOrderFacade;
 import vsu.cs.ui.ConsoleIO;
+import vsu.cs.ui.Menu;
 
 import java.util.List;
 
@@ -21,36 +22,17 @@ public class WorkOrderController {
     }
 
     public void run() {
-        while (true) {
-            System.out.println("""
-                    
-                    --- Work orders ---
-                    1. List all
-                    2. List by car
-                    3. List by status
-                    4. Create for car
-                    5. Show items
-                    6. Add item
-                    7. Remove item
-                    8. Change status
-                    9. Delete order (cascade items)
-                    0. Back
-                    """);
-            String choice = io.readLine("> ").trim();
-            switch (choice) {
-                case "1" -> io.safe(this::listAll);
-                case "2" -> io.safe(this::listByCar);
-                case "3" -> io.safe(this::listByStatus);
-                case "4" -> io.safe(this::create);
-                case "5" -> io.safe(this::showItems);
-                case "6" -> io.safe(this::addItem);
-                case "7" -> io.safe(this::removeItem);
-                case "8" -> io.safe(this::changeStatus);
-                case "9" -> io.safe(this::delete);
-                case "0" -> { return; }
-                default -> System.out.println("Unknown command.");
-            }
-        }
+        new Menu(io, "Work orders")
+                .add("all","List all", this::listAll)
+                .add("by-car","List by car", this::listByCar)
+                .add("by-status","List by status", this::listByStatus)
+                .add("create","Create for car", this::create)
+                .add("items","Show items", this::showItems)
+                .add("add-item","Add item", this::addItem)
+                .add("remove-item","Remove item", this::removeItem)
+                .add("change-status","Change status", this::changeStatus)
+                .add("delete","Delete order (cascade)", this::delete)
+                .run();
     }
 
     private void listAll() {
