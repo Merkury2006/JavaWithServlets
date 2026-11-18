@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-clients
+      author: Merkury (generated)
+      changes:
+        - createTable:
+            tableName: clients
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_clients
+              - column:
+                  name: full_name
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone
+                  type: text
+              - column:
+                  name: email
+                  type: text
+      rollback:
+        - dropTable:
+            tableName: clients

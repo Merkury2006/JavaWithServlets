@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-work-order-items
+      author: Merkury (generated)
+      changes:
+        - createTable:
+            tableName: work_order_items
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_work_order_items
+              - column:
+                  name: work_order_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_items_order
+                    references: work_orders(id)
+                    deleteCascade: true
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: numeric(12, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: int
+                  constraints:
+                    nullable: false
+        - sql:
+            sql: >
+              ALTER TABLE work_order_items ADD CONSTRAINT ck_items_price_positive
+              CHECK (price > 0)
+        - sql:
+            sql: >
+              ALTER TABLE work_order_items ADD CONSTRAINT ck_items_quantity_positive
+              CHECK (quantity > 0)
+      rollback:
+        - dropTable:
+            tableName: work_order_items

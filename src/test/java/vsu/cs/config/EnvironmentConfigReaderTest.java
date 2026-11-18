@@ -12,7 +12,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class EnvironmentConfigReaderTest {
+class EnvironmentConfigReaderTest {
+
     private final EnvironmentConfigReader reader = new EnvironmentConfigReader();
 
     @Test
@@ -22,6 +23,7 @@ public class EnvironmentConfigReaderTest {
         assertEquals("jdbc:postgresql://localhost:5432/autoService", config.url());
         assertEquals("autoService", config.user());
         assertEquals("autoService", config.password());
+        assertEquals(10, config.maxPoolSize());
     }
 
     @Test
@@ -29,12 +31,14 @@ public class EnvironmentConfigReaderTest {
         DatabaseConfig config = reader.read(Map.of(
                 "DB_URL", "jdbc:postgresql://db:5432/other",
                 "DB_USER", "reader",
-                "DB_PASSWORD", "secret"
+                "DB_PASSWORD", "secret",
+                "DB_MAX_POOL_SIZE", "20"
         ));
 
         assertEquals("jdbc:postgresql://db:5432/other", config.url());
         assertEquals("reader", config.user());
         assertEquals("secret", config.password());
+        assertEquals(20, config.maxPoolSize());
     }
 
     @Test
@@ -42,12 +46,14 @@ public class EnvironmentConfigReaderTest {
         DatabaseConfig config = reader.read(Map.of(
                 "DB_URL", " ",
                 "DB_USER", "",
-                "DB_PASSWORD", "   "
+                "DB_PASSWORD", "   ",
+                "DB_MAX_POOL_SIZE", " "
         ));
 
         assertEquals("jdbc:postgresql://localhost:5432/autoService", config.url());
         assertEquals("autoService", config.user());
         assertEquals("autoService", config.password());
+        assertEquals(10, config.maxPoolSize());
     }
 
     @Test
@@ -57,12 +63,27 @@ public class EnvironmentConfigReaderTest {
         assertEquals("jdbc:postgresql://only:5432/url", config.url());
         assertEquals("autoService", config.user());
         assertEquals("autoService", config.password());
+        assertEquals(10, config.maxPoolSize());
     }
 
     @Test
     void rejectsNullMap() {
         assertThrows(NullPointerException.class,
                 () -> reader.read((Map<String, String>) null));
+    }
+
+    @Test
+    void rejectsInvalidPoolSizeFormat() {
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(Map.of("DB_MAX_POOL_SIZE", "not-a-number")));
+    }
+
+    @Test
+    void rejectsNonPositivePoolSize() {
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(Map.of("DB_MAX_POOL_SIZE", "0")));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(Map.of("DB_MAX_POOL_SIZE", "-5")));
     }
 
     @Test
@@ -73,6 +94,7 @@ public class EnvironmentConfigReaderTest {
                 DB_URL=jdbc:postgresql://file:5432/fromfile
                 DB_USER=fromfile
                 DB_PASSWORD=fromfile
+                DB_MAX_POOL_SIZE=15
                 """);
 
         Map<String, String> env = new EnvironmentConfigReader(dotEnv).loadEnvironment();
@@ -80,6 +102,7 @@ public class EnvironmentConfigReaderTest {
         assertEquals("jdbc:postgresql://file:5432/fromfile", env.get("DB_URL"));
         assertEquals("fromfile", env.get("DB_USER"));
         assertEquals("fromfile", env.get("DB_PASSWORD"));
+        assertEquals("15", env.get("DB_MAX_POOL_SIZE"));
     }
 
     @Test

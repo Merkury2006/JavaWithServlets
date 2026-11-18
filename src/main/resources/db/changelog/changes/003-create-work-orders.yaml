@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-work-orders
+      author: Merkury (generated)
+      changes:
+        - createTable:
+            tableName: work_orders
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_work_orders
+              - column:
+                  name: car_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_work_orders_car
+                    references: cars(id)
+                    deleteCascade: true
+              - column:
+                  name: status
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_price
+                  type: numeric(12, 2)
+                  constraints:
+                    nullable: false
+        - sql:
+            sql: >
+              ALTER TABLE work_orders ADD CONSTRAINT ck_work_orders_status
+              CHECK (status IN ('NEW', 'IN_PROGRESS', 'DONE', 'CANCELLED'))
+      rollback:
+        - dropTable:
+            tableName: work_orders
