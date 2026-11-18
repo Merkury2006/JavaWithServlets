@@ -12,10 +12,12 @@ public final class EnvironmentConfigReader {
     static final String URL_VARIABLE = "DB_URL";
     static final String USER_VARIABLE = "DB_USER";
     static final String PASSWORD_VARIABLE = "DB_PASSWORD";
+    static final String MAX_POOL_SIZE_VARIABLE = "DB_MAX_POOL_SIZE";
 
     static final String DEFAULT_URL = "jdbc:postgresql://localhost:5432/autoService";
     static final String DEFAULT_USER = "autoService";
     static final String DEFAULT_PASSWORD = "autoService";
+    static final int DEFAULT_MAX_POOL_SIZE = 10;
 
     private final Path dotEnvPath;
 
@@ -42,7 +44,8 @@ public final class EnvironmentConfigReader {
         return new DatabaseConfig(
                 valueOrDefault(environment, URL_VARIABLE, DEFAULT_URL),
                 valueOrDefault(environment, USER_VARIABLE, DEFAULT_USER),
-                valueOrDefault(environment, PASSWORD_VARIABLE, DEFAULT_PASSWORD)
+                valueOrDefault(environment, PASSWORD_VARIABLE, DEFAULT_PASSWORD),
+                intOrDefault(environment, MAX_POOL_SIZE_VARIABLE, DEFAULT_MAX_POOL_SIZE)
         );
     }
 
@@ -74,5 +77,17 @@ public final class EnvironmentConfigReader {
     private static String valueOrDefault(Map<String, String> environment, String name, String defaultValue) {
         String value = environment.get(name);
         return value == null || value.isBlank() ? defaultValue : value;
+    }
+
+    private static int intOrDefault(Map<String, String> environment, String name, int defaultValue) {
+        String value = environment.get(name);
+        if (value == null || value.isBlank()) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Некорректное значение " + name + ": " + value, e);
+        }
     }
 }
