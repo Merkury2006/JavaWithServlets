@@ -1,4 +1,4 @@
-package vsu.cs.repository.impl;
+package vsu.cs.repository.impl.inMemoryImpl;
 
 import vsu.cs.domain.OrderStatus;
 import vsu.cs.domain.WorkOrder;

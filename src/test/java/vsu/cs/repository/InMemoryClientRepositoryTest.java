@@ -3,7 +3,7 @@ package vsu.cs.repository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vsu.cs.domain.Client;
-import vsu.cs.repository.impl.InMemoryClientRepository;
+import vsu.cs.repository.impl.inMemoryImpl.InMemoryClientRepository;
 
 import java.util.List;
 import java.util.Optional;

@@ -14,14 +14,10 @@ import java.util.List;
 public class CarService {
     private final CarRepository carRepository;
     private final ClientRepository clientRepository;
-    private final WorkOrderRepository orderRepository;
-    private final WorkOrderItemRepository itemRepository;
 
-    public CarService(CarRepository carRepo, ClientRepository clientRepo, WorkOrderRepository orderRepo, WorkOrderItemRepository itemRepo) {
+    public CarService(CarRepository carRepo, ClientRepository clientRepo) {
         this.carRepository = carRepo;
         this.clientRepository = clientRepo;
-        this.orderRepository = orderRepo;
-        this.itemRepository = itemRepo;
     }
 
     public Car createCar(Long clientId, String brand, String model, String plateNumber, int year) {
@@ -53,13 +49,8 @@ public class CarService {
     }
 
     public void deleteCar(Long id) {
-        if (!carRepository.existsById(id)) {
+        if (!carRepository.deleteById(id)) {
             throw new EntityNotFoundException("Car not found: " + id);
         }
-        for (WorkOrder order : orderRepository.findByCarId(id)) {
-            itemRepository.deleteByWorkOrderId(order.getId());
-            orderRepository.deleteById(order.getId());
-        }
-        carRepository.deleteById(id);
     }
 }

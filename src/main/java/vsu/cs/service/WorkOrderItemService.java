@@ -29,7 +29,6 @@ public class WorkOrderItemService {
         Validator.requirePositive(quantity, "Item quantity");
 
         WorkOrderItem item = workOrderItemRepository.save(new WorkOrderItem(workOrderId, description, price, quantity));
-        this.recalculateTotal(order.getId());
         return item;
     }
 
@@ -44,7 +43,6 @@ public class WorkOrderItemService {
         Validator.requireWorkOrderEditable(order);
 
         workOrderItemRepository.deleteById(itemId);
-        this.recalculateTotal(order.getId());
     }
 
     public List<WorkOrderItem> getItems(Long workOrderId) {
@@ -52,17 +50,6 @@ public class WorkOrderItemService {
             throw new EntityNotFoundException("Work order not found: " + workOrderId);
         }
         return workOrderItemRepository.findByWorkOrderId(workOrderId);
-    }
-
-    private void recalculateTotal(Long workOrderId) {
-        WorkOrder order = workOrderRepository.findById(workOrderId).orElseThrow(
-                () -> new EntityNotFoundException("Order not found: " + workOrderId)
-        );
-        double total = workOrderItemRepository.findByWorkOrderId(workOrderId).stream()
-                .mapToDouble(WorkOrderItem::getSubtotal)
-                .sum();
-        order.setTotalPrice(total);
-        workOrderRepository.save(order);
     }
 
 }

@@ -3,7 +3,7 @@ package vsu.cs.repository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vsu.cs.domain.WorkOrderItem;
-import vsu.cs.repository.impl.InMemoryWorkOrderItemRepository;
+import vsu.cs.repository.impl.inMemoryImpl.InMemoryWorkOrderItemRepository;
 
 import java.util.List;
 

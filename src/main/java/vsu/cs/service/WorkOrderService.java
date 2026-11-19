@@ -14,12 +14,10 @@ import java.util.List;
 public class WorkOrderService {
     private final WorkOrderRepository workOrderRepository;
     private final CarRepository carRepository;
-    private final WorkOrderItemRepository workOrderItemRepository;
 
-    public WorkOrderService(WorkOrderRepository orderRepository, CarRepository carRepository, WorkOrderItemRepository itemRepository) {
+    public WorkOrderService(WorkOrderRepository orderRepository, CarRepository carRepository) {
         this.workOrderRepository = orderRepository;
         this.carRepository = carRepository;
-        this.workOrderItemRepository = itemRepository;
     }
 
     public WorkOrder createWorkOrder(Long carId) {
@@ -55,7 +53,6 @@ public class WorkOrderService {
         if (!workOrderRepository.existsById(id)) {
             throw new EntityNotFoundException("Work order not found: " + id);
         }
-        workOrderItemRepository.deleteByWorkOrderId(id);
         workOrderRepository.deleteById(id);
     }
 
