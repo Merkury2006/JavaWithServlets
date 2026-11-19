@@ -3,7 +3,7 @@ package vsu.cs.repository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vsu.cs.domain.Car;
-import vsu.cs.repository.impl.InMemoryCarRepository;
+import vsu.cs.repository.impl.inMemoryImpl.InMemoryCarRepository;
 
 import java.util.List;
 

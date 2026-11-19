@@ -2,13 +2,11 @@ package vsu.cs.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import vsu.cs.AppContainer;
+import vsu.cs.AppFactory;
 import vsu.cs.domain.Client;
 import vsu.cs.exception.EntityNotFoundException;
 import vsu.cs.exception.ValidationException;
-import vsu.cs.repository.impl.InMemoryCarRepository;
-import vsu.cs.repository.impl.InMemoryClientRepository;
-import vsu.cs.repository.impl.InMemoryWorkOrderItemRepository;
-import vsu.cs.repository.impl.InMemoryWorkOrderRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -17,23 +15,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class ClientServiceTest {
-
-    private ClientService service;
-    private InMemoryClientRepository clientRepo;
-    private InMemoryCarRepository carRepo;
+    private AppContainer container;
 
     @BeforeEach
     void setUp() {
-        clientRepo = new InMemoryClientRepository();
-        carRepo = new InMemoryCarRepository();
-        InMemoryWorkOrderRepository orderRepo = new InMemoryWorkOrderRepository();
-        InMemoryWorkOrderItemRepository itemRepo = new InMemoryWorkOrderItemRepository();
-        service = new ClientService(clientRepo, carRepo, orderRepo, itemRepo);
+        container = AppFactory.createInMemory();
     }
 
     @Test
     void createClient_ok() {
-        Client c = service.createClient("Иван", "+7999", "ivan@mail.ru");
+        Client c = container.clientFacade.create("Иван", "+7999", "ivan@mail.ru");
         assertNotNull(c.getId());
         assertEquals("Иван", c.getFullName());
     }
@@ -41,23 +32,24 @@ class ClientServiceTest {
     @Test
     void createClient_blankName_throws() {
         assertThrows(ValidationException.class,
-                () -> service.createClient("", "+7999", "ivan@mail.ru"));
+                () -> container.clientFacade.create("", "+7999", "ivan@mail.ru"));
     }
 
     @Test
     void getClient_missing_throws() {
-        assertThrows(EntityNotFoundException.class, () -> service.getClient(999L));
-    }
-
-    @Test
-    void deleteClient_cascade() {
-        Client c = service.createClient("Иван", "+7999", "ivan@mail.ru");
-        service.deleteClient(c.getId());
-        assertFalse(clientRepo.existsById(c.getId()));
+        assertThrows(EntityNotFoundException.class, () -> container.clientFacade.get(999L));
     }
 
     @Test
     void deleteClient_missing_throws() {
-        assertThrows(EntityNotFoundException.class, () -> service.deleteClient(999L));
+        assertThrows(EntityNotFoundException.class, () -> container.clientFacade.delete(999L));
+    }
+
+    @Test
+    void deleteClient_cascade() {
+        Client c = container.clientFacade.create("Иван", "+7999", "ivan@mail.ru");
+        container.clientFacade.delete(c.getId());
+
+        assertThrows(EntityNotFoundException.class, () -> container.clientFacade.get(c.getId()));
     }
 }
