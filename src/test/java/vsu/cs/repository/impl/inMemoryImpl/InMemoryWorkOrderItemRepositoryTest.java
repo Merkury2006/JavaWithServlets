@@ -1,9 +1,8 @@
-package vsu.cs.repository;
+package vsu.cs.repository.impl.inMemoryImpl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vsu.cs.domain.WorkOrderItem;
-import vsu.cs.repository.impl.inMemoryImpl.InMemoryWorkOrderItemRepository;
 
 import java.util.List;
 
