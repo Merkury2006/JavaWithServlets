@@ -1,4 +1,4 @@
-package vsu.cs.repository.impl;
+package vsu.cs.repository.impl.inmemory;
 
 import vsu.cs.domain.Car;
 import vsu.cs.repository.CarRepository;

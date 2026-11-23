@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface WorkOrderItemRepository extends Repository<WorkOrderItem, Long> {
     List<WorkOrderItem> findByWorkOrderId(Long id);
-    void deleteByWorkOrderId(Long id);
+    boolean deleteByWorkOrderId(Long id);
 }

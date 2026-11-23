@@ -1,4 +1,4 @@
-package vsu.cs.repository.impl;
+package vsu.cs.repository.impl.inmemory;
 
 import vsu.cs.domain.WorkOrderItem;
 import vsu.cs.repository.WorkOrderItemRepository;
@@ -20,7 +20,7 @@ public class InMemoryWorkOrderItemRepository extends InMemoryRepository<WorkOrde
     }
 
     @Override
-    public void deleteByWorkOrderId(Long id) {
-        this.storage.values().removeIf(workOrderItem -> Objects.equals(workOrderItem.getWorkOrderId(), id));
+    public boolean deleteByWorkOrderId(Long id) {
+        return this.storage.values().removeIf(workOrderItem -> Objects.equals(workOrderItem.getWorkOrderId(), id));
     }
 }

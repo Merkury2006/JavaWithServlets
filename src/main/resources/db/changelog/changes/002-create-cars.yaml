@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-cars
+      author: Merkury (generated)
+      changes:
+        - createTable:
+            tableName: cars
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_cars
+              - column:
+                  name: client_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_cars_client
+                    references: clients(id)
+                    deleteCascade: true
+              - column:
+                  name: brand
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: model
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: plate_number
+                  type: text
+              - column:
+                  name: year
+                  type: int
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: cars

@@ -1,4 +1,4 @@
-package vsu.cs.repository.impl;
+package vsu.cs.repository.impl.inmemory;
 
 import vsu.cs.domain.Identifiable;
 import vsu.cs.repository.Repository;
@@ -38,8 +38,8 @@ public abstract class InMemoryRepository <T extends Identifiable<ID>, ID> implem
     }
 
     @Override
-    public void deleteById(ID id) {
-        storage.remove(id);
+    public boolean deleteById(ID id) {
+        return storage.remove(id) != null;
     }
 
     @Override

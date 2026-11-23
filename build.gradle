@@ -10,8 +10,25 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    postgresqlVersion = '42.7.4'
+    liquibaseVersion = '4.31.1'
+    hikariVersion = '6.2.1'
+    testcontainersVersion = '1.21.4'
+    junitVersion = '5.10.2'
+    mockitoVersion = '5.20.0'
+}
+
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    implementation "org.postgresql:postgresql:${postgresqlVersion}"
+    implementation "org.liquibase:liquibase-core:${liquibaseVersion}"
+    implementation "com.zaxxer:HikariCP:${hikariVersion}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+    testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+    testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

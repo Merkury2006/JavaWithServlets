@@ -1,9 +1,8 @@
-package vsu.cs.repository;
+package vsu.cs.repository.impl.inmemory;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vsu.cs.domain.Client;
-import vsu.cs.repository.impl.InMemoryClientRepository;
 
 import java.util.List;
 import java.util.Optional;
