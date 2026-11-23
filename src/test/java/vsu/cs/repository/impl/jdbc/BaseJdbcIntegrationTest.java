@@ -1,4 +1,4 @@
-package vsu.cs.repository.impl.jdbcImpl;
+package vsu.cs.repository.impl.jdbc;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.postgresql.ds.PGSimpleDataSource;

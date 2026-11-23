@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import vsu.cs.db.transaction.JdbcUtils;
 import vsu.cs.db.transaction.SqlAction;
 import vsu.cs.exception.RepositoryException;
-import vsu.cs.repository.impl.jdbcImpl.BaseJdbcIntegrationTest;
-import vsu.cs.repository.impl.jdbcImpl.JdbcClientRepository;
+import vsu.cs.repository.impl.jdbc.BaseJdbcIntegrationTest;
+import vsu.cs.repository.impl.jdbc.JdbcClientRepository;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

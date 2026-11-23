@@ -1,4 +1,4 @@
-package vsu.cs.repository.impl.jdbcImpl;
+package vsu.cs.repository.impl.jdbc;
 
 import vsu.cs.db.transaction.JdbcUtils;
 import vsu.cs.domain.OrderStatus;
@@ -20,6 +20,16 @@ import java.util.Optional;
 public class JdbcWorkOrderRepository implements WorkOrderRepository {
     private final DataSource dataSource;
 
+    private static final String FIND_BY_ID = "SELECT id, car_id, status, created_at, total_price FROM work_orders WHERE id = ?";
+    private static final String FIND_ALL = "SELECT id, car_id, status, created_at, total_price FROM work_orders ORDER BY id";
+    private static final String FIND_BY_CAR_ID = "SELECT id, car_id, status, created_at, total_price FROM work_orders WHERE car_id = ? ORDER BY id";
+    private static final String FIND_BY_STATUS = "SELECT id, car_id, status, created_at, total_price FROM work_orders WHERE status = ? ORDER BY id";
+    private static final String DELETE_BY_ID = "DELETE FROM work_orders WHERE id = ?";
+    private static final String EXISTS_BY_ID = "SELECT 1 FROM work_orders WHERE id = ?";
+    private static final String INSERT = "INSERT INTO work_orders (car_id, status, created_at, total_price) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE work_orders SET car_id = ?, status = ?, total_price = ? WHERE id = ?";
+
+
     public JdbcWorkOrderRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -34,21 +44,18 @@ public class JdbcWorkOrderRepository implements WorkOrderRepository {
 
     @Override
     public List<WorkOrder> findByCarId(Long carId) {
-        String sql = "SELECT id, car_id, status, created_at, total_price FROM work_orders WHERE car_id = ? ORDER BY id";
-        return this.queryList(sql, carId);
+        return this.queryList(FIND_BY_CAR_ID, carId);
     }
 
     @Override
     public List<WorkOrder> findByStatus(OrderStatus status) {
-        String sql = "SELECT id, car_id, status, created_at, total_price FROM work_orders WHERE status = ? ORDER BY id";
-        return this.queryList(sql, status.name());
+        return this.queryList(FIND_BY_STATUS, status.name());
     }
 
     @Override
     public Optional<WorkOrder> findById(Long id) {
-        String sql = "SELECT id, car_id, status, created_at, total_price FROM work_orders WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -63,11 +70,10 @@ public class JdbcWorkOrderRepository implements WorkOrderRepository {
 
     @Override
     public List<WorkOrder> findAll() {
-        String sql = "SELECT id, car_id, status, created_at, total_price FROM work_orders ORDER BY id";
         List<WorkOrder> result = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+             ResultSet resultSet = statement.executeQuery(FIND_ALL)) {
             while (resultSet.next()) {
                 result.add(this.mapToWorkOrder(resultSet));
             }
@@ -79,9 +85,8 @@ public class JdbcWorkOrderRepository implements WorkOrderRepository {
 
     @Override
     public boolean deleteById(Long id) {
-        String sql = "DELETE FROM work_orders WHERE id = ?";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (PreparedStatement stmt = connection.prepareStatement(DELETE_BY_ID)) {
                 stmt.setLong(1, id);
                 return stmt.executeUpdate() > 0;
             }
@@ -90,9 +95,8 @@ public class JdbcWorkOrderRepository implements WorkOrderRepository {
 
     @Override
     public boolean existsById(Long id) {
-        String sql = "SELECT 1 FROM work_orders WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(EXISTS_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();
@@ -103,9 +107,8 @@ public class JdbcWorkOrderRepository implements WorkOrderRepository {
     }
 
     private WorkOrder insert(WorkOrder order) {
-        String sql = "INSERT INTO work_orders (car_id, status, created_at, total_price) VALUES (?, ?, ?, ?)";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement stmt = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setLong(1, order.getCarId());
                 stmt.setString(2, order.getStatus().name());
                 stmt.setTimestamp(3, Timestamp.valueOf(order.getCreatedAt()));
@@ -122,9 +125,8 @@ public class JdbcWorkOrderRepository implements WorkOrderRepository {
     }
 
     private WorkOrder update(WorkOrder order) {
-        String sql = "UPDATE work_orders SET car_id = ?, status = ?, total_price = ? WHERE id = ?";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (PreparedStatement stmt = connection.prepareStatement(UPDATE)) {
                 stmt.setLong(1, order.getCarId());
                 stmt.setString(2, order.getStatus().name());
                 stmt.setDouble(3, order.getTotalPrice());

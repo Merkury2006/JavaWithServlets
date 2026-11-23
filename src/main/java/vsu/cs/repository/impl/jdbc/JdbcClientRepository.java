@@ -1,4 +1,4 @@
-package vsu.cs.repository.impl.jdbcImpl;
+package vsu.cs.repository.impl.jdbc;
 
 import vsu.cs.db.transaction.JdbcUtils;
 import vsu.cs.domain.Client;
@@ -18,6 +18,14 @@ import java.util.Optional;
 public class JdbcClientRepository implements ClientRepository {
     private final DataSource dataSource;
 
+    private static final String FIND_BY_ID = "SELECT id, full_name, phone, email FROM clients WHERE id = ?";
+    private static final String FIND_ALL = "SELECT id, full_name, phone, email FROM clients ORDER BY id";
+    private static final String DELETE_BY_ID = "DELETE FROM clients WHERE id = ?";
+    private static final String EXISTS_BY_ID = "SELECT 1 FROM clients WHERE id = ?";
+    private static final String INSERT = "INSERT INTO clients (full_name, phone, email) VALUES (?, ?, ?)";
+    private static final String UPDATE = "UPDATE clients SET full_name = ?, phone = ?, email = ? WHERE id = ?";
+
+
     public JdbcClientRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -32,9 +40,8 @@ public class JdbcClientRepository implements ClientRepository {
 
     @Override
     public Optional<Client> findById(Long id) {
-        String sql = "SELECT id, full_name, phone, email FROM clients WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -49,11 +56,10 @@ public class JdbcClientRepository implements ClientRepository {
 
     @Override
     public List<Client> findAll() {
-        String sql = "SELECT id, full_name, phone, email FROM clients ORDER BY id";
         List<Client> result = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+             ResultSet resultSet = statement.executeQuery(FIND_ALL)) {
             while (resultSet.next()) {
                 result.add(this.mapToClient(resultSet));
             }
@@ -65,9 +71,8 @@ public class JdbcClientRepository implements ClientRepository {
 
     @Override
     public boolean deleteById(Long id) {
-        String sql = "DELETE FROM clients WHERE id = ?";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (PreparedStatement stmt = connection.prepareStatement(DELETE_BY_ID)) {
                 stmt.setLong(1, id);
                 return stmt.executeUpdate() > 0;
             }
@@ -76,9 +81,8 @@ public class JdbcClientRepository implements ClientRepository {
 
     @Override
     public boolean existsById(Long id) {
-        String sql = "SELECT 1 FROM clients WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(EXISTS_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();
@@ -89,9 +93,8 @@ public class JdbcClientRepository implements ClientRepository {
     }
 
     private Client insert(Client client) {
-        String sql = "INSERT INTO clients (full_name, phone, email) VALUES (?, ?, ?)";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement stmt = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, client.getFullName());
                 stmt.setString(2, client.getPhone());
                 stmt.setString(3, client.getEmail());
@@ -107,9 +110,8 @@ public class JdbcClientRepository implements ClientRepository {
     }
 
     private Client update(Client client) {
-        String sql = "UPDATE clients SET full_name = ?, phone = ?, email = ? WHERE id = ?";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (PreparedStatement stmt = connection.prepareStatement(UPDATE)) {
                 stmt.setString(1, client.getFullName());
                 stmt.setString(2, client.getPhone());
                 stmt.setString(3, client.getEmail());

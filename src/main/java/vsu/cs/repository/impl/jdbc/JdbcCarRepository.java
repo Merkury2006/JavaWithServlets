@@ -1,4 +1,4 @@
-package vsu.cs.repository.impl.jdbcImpl;
+package vsu.cs.repository.impl.jdbc;
 
 import vsu.cs.db.transaction.JdbcUtils;
 import vsu.cs.domain.Car;
@@ -18,6 +18,15 @@ import java.util.Optional;
 public class JdbcCarRepository implements CarRepository {
     private final DataSource dataSource;
 
+    private static final String FIND_BY_ID = "SELECT id, client_id, brand, model, plate_number, year FROM cars WHERE id = ?";
+    private static final String FIND_BY_CLIENT_ID = "SELECT id, client_id, brand, model, plate_number, year FROM cars WHERE client_id = ? ORDER BY id";
+    private static final String FIND_ALL = "SELECT id, client_id, brand, model, plate_number, year FROM cars ORDER BY id";
+    private static final String DELETE_BY_ID = "DELETE FROM cars WHERE id = ?";
+    private static final String EXISTS_BY_ID = "SELECT 1 FROM cars WHERE id = ?";
+    private static final String INSERT = "INSERT INTO cars (client_id, brand, model, plate_number, year) VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE cars SET client_id = ?, brand = ?, model = ?, plate_number = ?, year = ? WHERE id = ?";
+
+
     public JdbcCarRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -32,9 +41,8 @@ public class JdbcCarRepository implements CarRepository {
 
     @Override
     public Optional<Car> findById(Long id) {
-        String sql = "SELECT id, client_id, brand, model, plate_number, year FROM cars WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -49,10 +57,9 @@ public class JdbcCarRepository implements CarRepository {
 
     @Override
     public List<Car> findByClientId(Long clientId) {
-        String sql = "SELECT id, client_id, brand, model, plate_number, year FROM cars WHERE client_id = ? ORDER BY id";
         List<Car> result = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_CLIENT_ID)) {
             statement.setLong(1, clientId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -67,11 +74,10 @@ public class JdbcCarRepository implements CarRepository {
 
     @Override
     public List<Car> findAll() {
-        String sql = "SELECT id, client_id, brand, model, plate_number, year FROM cars ORDER BY id";
         List<Car> result = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+             ResultSet resultSet = statement.executeQuery(FIND_ALL)) {
             while (resultSet.next()) {
                 result.add(this.mapToCar(resultSet));
             }
@@ -83,9 +89,8 @@ public class JdbcCarRepository implements CarRepository {
 
     @Override
     public boolean deleteById(Long id) {
-        String sql = "DELETE FROM cars WHERE id = ?";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (PreparedStatement stmt = connection.prepareStatement(DELETE_BY_ID)) {
                 stmt.setLong(1, id);
                 return stmt.executeUpdate() > 0;
             }
@@ -94,9 +99,8 @@ public class JdbcCarRepository implements CarRepository {
 
     @Override
     public boolean existsById(Long id) {
-        String sql = "SELECT 1 FROM cars WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(EXISTS_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();
@@ -107,9 +111,8 @@ public class JdbcCarRepository implements CarRepository {
     }
 
     private Car insert(Car car) {
-        String sql = "INSERT INTO cars (client_id, brand, model, plate_number, year) VALUES (?, ?, ?, ?, ?)";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement stmt = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setLong(1, car.getClientId());
                 stmt.setString(2, car.getBrand());
                 stmt.setString(3, car.getModel());
@@ -127,9 +130,8 @@ public class JdbcCarRepository implements CarRepository {
     }
 
     private Car update(Car car) {
-        String sql = "UPDATE cars SET client_id = ?, brand = ?, model = ?, plate_number = ?, year = ? WHERE id = ?";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (PreparedStatement stmt = connection.prepareStatement(UPDATE)) {
                 stmt.setLong(1, car.getClientId());
                 stmt.setString(2, car.getBrand());
                 stmt.setString(3, car.getModel());

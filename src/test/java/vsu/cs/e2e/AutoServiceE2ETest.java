@@ -9,7 +9,7 @@ import vsu.cs.domain.Client;
 import vsu.cs.domain.OrderStatus;
 import vsu.cs.domain.WorkOrder;
 import vsu.cs.exception.EntityNotFoundException;
-import vsu.cs.repository.impl.jdbcImpl.BaseJdbcIntegrationTest;
+import vsu.cs.repository.impl.jdbc.BaseJdbcIntegrationTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

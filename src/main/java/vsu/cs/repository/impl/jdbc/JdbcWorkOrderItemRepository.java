@@ -1,4 +1,4 @@
-package vsu.cs.repository.impl.jdbcImpl;
+package vsu.cs.repository.impl.jdbc;
 
 import vsu.cs.db.transaction.JdbcUtils;
 import vsu.cs.domain.WorkOrderItem;
@@ -18,6 +18,22 @@ import java.util.Optional;
 public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
     private final DataSource dataSource;
 
+    private static final String FIND_BY_ID = "SELECT id, work_order_id, description, price, quantity FROM work_order_items WHERE id = ?";
+    private static final String FIND_ALL = "SELECT id, work_order_id, description, price, quantity FROM work_order_items ORDER BY id";
+    private static final String FIND_BY_WORK_ORDER_ID = "SELECT id, work_order_id, description, price, quantity FROM work_order_items WHERE work_order_id = ? ORDER BY id";
+    private static final String FIND_WORK_ORDER_ID_BY_ITEM_ID = "SELECT work_order_id FROM work_order_items WHERE id = ?";
+    private static final String DELETE_BY_ID = "DELETE FROM work_order_items WHERE id = ?";
+    private static final String DELETE_BY_WORK_ORDER_ID = "DELETE FROM work_order_items WHERE work_order_id = ?";
+    private static final String EXISTS_BY_ID = "SELECT 1 FROM work_order_items WHERE id = ?";
+    private static final String INSERT = "INSERT INTO work_order_items (work_order_id, description, price, quantity) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE work_order_items SET work_order_id = ?, description = ?, price = ?, quantity = ? WHERE id = ?";
+    private static final String UPDATE_TOTAL_PRICE = """
+        UPDATE work_orders
+        SET total_price = (SELECT COALESCE(SUM(price * quantity), 0) FROM work_order_items WHERE work_order_id = ?)
+        WHERE id = ?
+        """;
+
+
     public JdbcWorkOrderItemRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -32,9 +48,8 @@ public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
 
     @Override
     public Optional<WorkOrderItem> findById(Long id) {
-        String sql = "SELECT id, work_order_id, description, price, quantity FROM work_order_items WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -49,11 +64,10 @@ public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
 
     @Override
     public List<WorkOrderItem> findAll() {
-        String sql = "SELECT id, work_order_id, description, price, quantity FROM work_order_items ORDER BY id";
         List<WorkOrderItem> result = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+             ResultSet resultSet = statement.executeQuery(FIND_ALL)) {
             while (resultSet.next()) {
                 result.add(this.mapToWorkOrderItem(resultSet));
             }
@@ -65,10 +79,9 @@ public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
 
     @Override
     public List<WorkOrderItem> findByWorkOrderId(Long workOrderId) {
-        String sql = "SELECT id, work_order_id, description, price, quantity FROM work_order_items WHERE work_order_id = ? ORDER BY id";
         List<WorkOrderItem> result = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_WORK_ORDER_ID)) {
             statement.setLong(1, workOrderId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -83,11 +96,9 @@ public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
 
     @Override
     public boolean deleteById(Long id) {
-        String deleteSql = "DELETE FROM work_order_items WHERE id = ?";
-        String selectSql = "SELECT work_order_id FROM work_order_items WHERE id = ?";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
             Long workOrderId = null;
-            try (PreparedStatement findStatement = connection.prepareStatement(selectSql)) {
+            try (PreparedStatement findStatement = connection.prepareStatement(FIND_WORK_ORDER_ID_BY_ITEM_ID)) {
                 findStatement.setLong(1, id);
                 try (ResultSet resultSet = findStatement.executeQuery()) {
                     if (resultSet.next()) {
@@ -96,7 +107,7 @@ public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
                 }
             }
 
-            try (PreparedStatement deleteStatement = connection.prepareStatement(deleteSql)) {
+            try (PreparedStatement deleteStatement = connection.prepareStatement(DELETE_BY_ID)) {
                 deleteStatement.setLong(1, id);
                 boolean deleted = deleteStatement.executeUpdate() > 0;
                 if (deleted && workOrderId != null) {
@@ -109,9 +120,8 @@ public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
 
     @Override
     public boolean deleteByWorkOrderId(Long workOrderId) {
-        String sql = "DELETE FROM work_order_items WHERE work_order_id = ?";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            try (PreparedStatement statement = connection.prepareStatement(DELETE_BY_WORK_ORDER_ID)) {
                 statement.setLong(1, workOrderId);
                 boolean deleted = statement.executeUpdate() > 0;
                 if (deleted) {
@@ -124,9 +134,8 @@ public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
 
     @Override
     public boolean existsById(Long id) {
-        String sql = "SELECT 1 FROM work_order_items WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(EXISTS_BY_ID)) {
             statement.setLong(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();
@@ -137,9 +146,8 @@ public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
     }
 
     private WorkOrderItem insert(WorkOrderItem item) {
-        String sql = "INSERT INTO work_order_items (work_order_id, description, price, quantity) VALUES (?, ?, ?, ?)";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement stmt = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setLong(1, item.getWorkOrderId());
                 stmt.setString(2, item.getDescription());
                 stmt.setDouble(3, item.getPrice());
@@ -157,9 +165,8 @@ public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
     }
 
     private WorkOrderItem update(WorkOrderItem item) {
-        String sql = "UPDATE work_order_items SET work_order_id = ?, description = ?, price = ?, quantity = ? WHERE id = ?";
         return JdbcUtils.runInTransaction(dataSource, connection -> {
-            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (PreparedStatement stmt = connection.prepareStatement(UPDATE)) {
                 stmt.setLong(1, item.getWorkOrderId());
                 stmt.setString(2, item.getDescription());
                 stmt.setDouble(3, item.getPrice());
@@ -173,12 +180,7 @@ public class JdbcWorkOrderItemRepository implements WorkOrderItemRepository {
     }
 
     private void recalculateTotal(Connection connection, Long workOrderId) throws SQLException {
-        String updateSql = """
-            UPDATE work_orders 
-            SET total_price = (SELECT COALESCE(SUM(price * quantity), 0) FROM work_order_items WHERE work_order_id = ?)
-            WHERE id = ?
-            """;
-        try (PreparedStatement stmt = connection.prepareStatement(updateSql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(UPDATE_TOTAL_PRICE)) {
             stmt.setLong(1, workOrderId);
             stmt.setLong(2, workOrderId);
             stmt.executeUpdate();

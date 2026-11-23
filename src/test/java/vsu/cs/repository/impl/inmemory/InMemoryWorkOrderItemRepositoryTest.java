@@ -1,4 +1,4 @@
-package vsu.cs.repository.impl.inMemoryImpl;
+package vsu.cs.repository.impl.inmemory;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
